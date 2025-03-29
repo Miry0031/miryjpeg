@@ -21,33 +21,6 @@ for (let i = 1; i <= imageNumber; i++) {
   imges.appendChild(div);
 }
 
-// Fetching location name using OpenStreetMap Nominatim API
-async function getLocationName(latitude, longitude) {
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-    );
-    const data = await response.json();
-    return data.display_name || "Unknown Location";
-  } catch (error) {
-    return "Unknown Location";
-  }
-}
-//to fetch from the obj --> await is not supported in exif
-async function displayLocation(latitude, longitude) {
-  const locationName = await getLocationName(latitude, longitude);
-  document.getElementById("imageInfo").innerHTML += `<br> Location: ${
-    locationName || "N/A"
-  }`;
-}
-
-// Convert GPS to Decimal
-function convertToDecimal(coord, ref) {
-  if (!coord) return null;
-  let decimal = coord[0] + coord[1] / 60 + coord[2] / 3600;
-  return ref === "S" || ref === "W" ? -decimal : decimal;
-}
-
 //for the modal
 function openModal(id) {
   const modal = document.getElementById("imageModal");
@@ -62,19 +35,8 @@ function openModal(id) {
 
   img.onload = function () {
     EXIF.getData(img, function () {
-      const lat = EXIF.getTag(this, "GPSLatitude");
-      const lon = EXIF.getTag(this, "GPSLongitude");
-      const latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
-      const lonRef = EXIF.getTag(this, "GPSLongitudeRef") || "W";
-      const latitude = convertToDecimal(lat, latRef);
-      const longitude = convertToDecimal(lon, lonRef);
-      const locationName = displayLocation(latitude, longitude);
-      console.log(locationName);
-
       let metadata = EXIF.getAllTags(this);
-      const Exposure = metadata.ExposureTime
-        ? `1/${Math.round(1 / metadata.ExposureTime)}`
-        : "N/A";
+      const Exposure = metadata.ExposureTime ? `1/${Math.round(1 / metadata.ExposureTime)}`: "N/A";
       let infoText = `
               Camera: ${metadata.Make || "Unknown"} ${metadata.Model || ""}
               <br> Exposure: ${Exposure} sec
