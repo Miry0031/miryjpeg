@@ -35,15 +35,29 @@ function openModal(id) {
 
   img.onload = function () {
     EXIF.getData(img, function () {
-      let metadata = EXIF.getAllTags(this);
-      const Exposure = metadata.ExposureTime ? `1/${Math.round(1 / metadata.ExposureTime)}`: "N/A";
-      let infoText = `
+      fetch("locations.csv")
+        .then((response) => response.text())
+        .then((text) => {
+          let lines = text.split("\n");
+          let locationNumber = id;
+          const location =
+            lines
+              .find((line) => line.startsWith(locationNumber + ","))
+              ?.split(",")[1] || "Unknown";
+
+          let metadata = EXIF.getAllTags(this);
+          const Exposure = metadata.ExposureTime
+            ? `1/${Math.round(1 / metadata.ExposureTime)}`
+            : "N/A";
+          let infoText = `
               Camera: ${metadata.Make || "Unknown"} ${metadata.Model || ""}
               <br> Exposure: ${Exposure} sec
               <br> Aperture: f/${metadata.FNumber || "N/A"}
               <br> ISO: ${metadata.ISOSpeedRatings || "N/A"}
+              <br> Location: ${location}
           `;
-      document.getElementById("imageInfo").innerHTML = infoText;
+          document.getElementById("imageInfo").innerHTML = infoText;
+        });
     });
   };
 
