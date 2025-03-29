@@ -30,8 +30,8 @@ function openModal(id) {
   img.onload = function () {
     EXIF.getData(img, function () {
       let metadata = EXIF.getAllTags(this);
-     const Exposure = (metadata.ExposureTime) ? metadata.ExposureTime.toFixed(3) : "N/A";
-      let infoText = `
+      const Exposure = metadata.ExposureTime ? `1/${Math.round(1 / metadata.ExposureTime)}`: "N/A";
+       let infoText = `
               Camera: ${metadata.Make || "Unknown"} ${metadata.Model || ""}
               <br> Exposure: ${Exposure} sec
               <br> Aperture: f/${metadata.FNumber || "N/A"}
